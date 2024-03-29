@@ -513,8 +513,14 @@ def main():
         '--label_source2', default='original', choices=['original', 'new'],
         help='What results to use for the second labeller (original)'
     )
-    annotator_agreement_parser.add_argument('--labeller1', choices=[0, 1, 2, 3, 4], type=int, help='First labeller for agreement')
-    annotator_agreement_parser.add_argument('--labeller2', choices=[0, 1, 2, 3, 4], type=int, help='Second labeller for agreement (default is labeller1 if not set, changes label source to be different)')
+    annotator_agreement_parser.add_argument(
+        '--labeller1', choices=[0, 1, 2, 3, 4], type=int,
+        help='First labeller for agreement'
+    )
+    annotator_agreement_parser.add_argument(
+        '--labeller2', choices=[0, 1, 2, 3, 4], type=int,
+        help='Second labeller for agreement (default is labeller1 if not set, changes label source to be different)'
+    )
     annotator_agreement_parser.add_argument('--system', choices=['Ours', 'PAQ', 'groundtruth'])
     annotator_agreement_parser.set_defaults(func=all_aggreements)
     
