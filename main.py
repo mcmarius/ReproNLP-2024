@@ -250,9 +250,12 @@ def stats_significance_wrapper(args):
 def stats_significance(labeller=None, skip_labellers=None):
     if labeller is not None:
         print(f"Results for labeller {labeller}")
-    ours_readability, ours_relevancy_q, ours_relevancy_a, ours_readability_new, ours_relevancy_q_new, ours_relevancy_a_new = stories_stats(labeller=labeller, skip_labellers=skip_labellers, system='Ours', do_print=False)
-    paq_readability, paq_relevancy_q, paq_relevancy_a, paq_readability_new, paq_relevancy_q_new, paq_relevancy_a_new = stories_stats(labeller=labeller, skip_labellers=skip_labellers, system='PAQ', do_print=False)
-    gt_readability, gt_relevancy_q, gt_relevancy_a, gt_readability_new, gt_relevancy_q_new, gt_relevancy_a_new = stories_stats(labeller=labeller, skip_labellers=skip_labellers, system='groundtruth', do_print=False)
+    ours_readability, ours_relevancy_q, ours_relevancy_a, ours_readability_new, ours_relevancy_q_new, ours_relevancy_a_new = \
+        stories_stats(labeller=labeller, skip_labellers=skip_labellers, system='Ours', do_print=False)
+    paq_readability, paq_relevancy_q, paq_relevancy_a, paq_readability_new, paq_relevancy_q_new, paq_relevancy_a_new = \
+        stories_stats(labeller=labeller, skip_labellers=skip_labellers, system='PAQ', do_print=False)
+    gt_readability, gt_relevancy_q, gt_relevancy_a, gt_readability_new, gt_relevancy_q_new, gt_relevancy_a_new = \
+        stories_stats(labeller=labeller, skip_labellers=skip_labellers, system='groundtruth', do_print=False)
     print("Readability")
     print("Ours vs PAQ",          scipy.stats.ttest_ind(ours_readability, paq_readability))
     print("Ground truth vs PAQ",  scipy.stats.ttest_ind(gt_readability,   paq_readability))
