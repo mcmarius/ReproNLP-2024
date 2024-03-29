@@ -121,7 +121,7 @@ def merge_labellers_files(_args):
                 break
             if i > 0: # skip header
                 rows.append(row)
-    print(len(rows))
+    # print(len(rows))
     rows = sorted(rows, key=lambda key: int(key[0].value))
     with open(os.path.join('data', f'stories_relabelled.csv'), 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=RELABELED_HEADER)
@@ -369,7 +369,7 @@ def annotator_agreement(labeller1=None, labeller2=None, label_source1='original'
                     read_results[row['qa_id']]['relevancy_q'].append(q_score)
                     read_results[row['qa_id']]['relevancy_a'].append(a_score)
 
-    #print(read_results)
+    # print(read_results)
     read_matrix = []
     q_matrix = []
     a_matrix = []
@@ -378,16 +378,16 @@ def annotator_agreement(labeller1=None, labeller2=None, label_source1='original'
             read_matrix.append(read_results[k]['readability'])
             q_matrix.append(read_results[k]['relevancy_q'])
             a_matrix.append(read_results[k]['relevancy_a'])
-        #print(read_results[k])
+        # print(read_results[k])
     read_matrix = np.array(read_matrix).T
     q_matrix = np.array(q_matrix).T
     a_matrix = np.array(a_matrix).T
-    print('Read matrix: ')
-    print(read_matrix)
-    print('Q matrix: ')
-    print(q_matrix)
-    print('A matrix: ')
-    print(a_matrix)
+    # print('Read matrix: ')
+    # print(read_matrix)
+    # print('Q matrix: ')
+    # print(q_matrix)
+    # print('A matrix: ')
+    # print(a_matrix)
     
     # ordinal or interval or ratio would make the most sense
     level = 'ordinal'
@@ -538,8 +538,6 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-exit()
 
 # 1)
 # python main.py write_files_for_labellers
