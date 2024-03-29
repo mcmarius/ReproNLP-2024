@@ -105,9 +105,9 @@ def anonymize_files(args):
                 break
             if i > 0: # skip header
                 stories.append({
-                'id': row[0].value, 'section': row[1].value, 'question': row[2].value, 'answer': row[3].value,
-                'readability': row[4].value, 'relevancy_q': row[5].value, 'relevancy_a': row[6].value
-            })
+                    'id': row[0].value, 'section': row[1].value, 'question': row[2].value, 'answer': row[3].value,
+                    'readability': row[4].value, 'relevancy_q': row[5].value, 'relevancy_a': row[6].value
+                })
         stories_writer.write_xlsx_for_labeller(labeller, stories)
 
 
