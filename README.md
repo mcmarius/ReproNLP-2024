@@ -11,7 +11,7 @@ Next, we show how to process the files. Use `python main.py -h` for help with th
 ### 1. Write files for labellers
 
 ```sh
-python main.py write_files_for_labellers
+python main.py write-files-for-labellers
 ```
 
 ### 2. Move (or add) newly labelled files to data/ directory
@@ -21,7 +21,7 @@ The files should be named `received_stories_{labeller_number}.xlsx`.
 ### 3. Remove any personal data from the received files
 
 ```sh
-python main.py anonymize_labellers_files
+python main.py anonymize-labellers-files
 ```
 
 ### 4. Merge received files and combine the results from both studies into one file
@@ -29,8 +29,8 @@ python main.py anonymize_labellers_files
 If you skip step 3, please name the files as `new_stories_{labeller_number}.xlsx`.
 
 ```sh
-python main.py merge_labellers_files
-python main.py combine_labelled_files
+python main.py merge-labellers_files
+python main.py combine-labelled_files
 ```
 
 ### 5. Extract examples for which labellers assigned radically different scores
@@ -40,35 +40,35 @@ We compare labeller 0 from the original study with labeller 0 from our reproduct
 Still, we use this approach to analyze divergent examples because this is how labellers were assigned to examples in the original experiment.
 
 ```sh
-python main.py extract_divergent_examples 4
-python main.py extract_divergent_examples 3
+python main.py extract-divergent_examples 4
+python main.py extract-divergent_examples 3
 ```
 
 ### 6. Show mean and standard deviation scores
 
 ```sh
-python main.py stories_stats --system Ours
-python main.py stories_stats --system PAQ
-python main.py stories_stats --system groundtruth
+python main.py stories-stats --system Ours
+python main.py stories-stats --system PAQ
+python main.py stories-stats --system groundtruth
 
-python main.py stories_stats --system Ours --skip_labellers 1
-python main.py stories_stats --system PAQ --skip_labellers 1
-python main.py stories_stats --system groundtruth --skip_labellers 1
+python main.py stories-stats --system Ours --skip-labellers 1
+python main.py stories-stats --system PAQ --skip-labellers 1
+python main.py stories-stats --system groundtruth --skip-labellers 1
 ```
 
 ### 7. Show the results of statistical significance tests comparing the systems
 
 ```sh
-python main.py stats_significance
-python main.py stats_significance --skip_labellers 1
+python main.py stats-significance
+python main.py stats-significance --skip-labellers 1
 ```
 
 ### 8. Show the annotator agreement between pairs of labellers
 
 ```sh
-python main.py annotator_agreement
-python main.py annotator_agreement --label_source1 new --label_source2 new
-python main.py annotator_agreement --label_source1 new
-python main.py annotator_agreement --system Ours --label_source1 new --label_source2 new
-python main.py annotator_agreement --labeller1 0 --labeller1 1
+python main.py annotator-agreement
+python main.py annotator-agreement --label-source1 new --label-source2 new
+python main.py annotator-agreement --label-source1 new
+python main.py annotator-agreement --system Ours --label-source1 new --label-source2 new
+python main.py annotator-agreement --labeller1 0 --labeller1 1
 ```

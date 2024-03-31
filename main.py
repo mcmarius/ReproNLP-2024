@@ -244,10 +244,10 @@ def stories_stats(labeller=None, system=None, do_print=True, skip_labellers=None
 
 
 def stats_significance_wrapper(args):
-    stats_significance(labeller=args.labeller, skip_labellers=args.skip_labellers)
+    stats_significance(labeller=args.labeller, skip_labellers=args.skip_labellers, normality_test=args.normality_test)
 
 
-def stats_significance(labeller=None, skip_labellers=None):
+def stats_significance(labeller=None, skip_labellers=None, normality_test=False):
     if labeller is not None:
         print(f"Results for labeller {labeller}")
     ours_readability, ours_relevancy_q, ours_relevancy_a, ours_readability_new, ours_relevancy_q_new, ours_relevancy_a_new = \
@@ -256,6 +256,35 @@ def stats_significance(labeller=None, skip_labellers=None):
         stories_stats(labeller=labeller, skip_labellers=skip_labellers, system='PAQ', do_print=False)
     gt_readability, gt_relevancy_q, gt_relevancy_a, gt_readability_new, gt_relevancy_q_new, gt_relevancy_a_new = \
         stories_stats(labeller=labeller, skip_labellers=skip_labellers, system='groundtruth', do_print=False)
+
+
+    if normality_test:
+        print("Normality tests")
+        print("Ours readability: ",         scipy.stats.shapiro(ours_readability))
+        print("PAQ readability: ",          scipy.stats.shapiro(paq_readability))
+        print("Ground truth readability: ", scipy.stats.shapiro(gt_readability))
+        print("Ours q relevancy: ",         scipy.stats.shapiro(ours_relevancy_q))
+        print("PAQ q relevancy: ",          scipy.stats.shapiro(paq_relevancy_q))
+        print("Ground truth a relevancy: ", scipy.stats.shapiro(gt_relevancy_q))
+        print("Ours a relevancy: ",         scipy.stats.shapiro(ours_relevancy_a))
+        print("PAQ a relevancy: ",          scipy.stats.shapiro(paq_relevancy_a))
+        print("Ground truth a relevancy: ", scipy.stats.shapiro(gt_relevancy_a))
+
+        print("-----------")
+
+        print("Normality tests (new)")
+        print("Ours readability: ",         scipy.stats.shapiro(ours_readability_new))
+        print("PAQ readability: ",          scipy.stats.shapiro(paq_readability_new))
+        print("Ground truth readability: ", scipy.stats.shapiro(gt_readability_new))
+        print("Ours q relevancy: ",         scipy.stats.shapiro(ours_relevancy_q_new))
+        print("PAQ q relevancy: ",          scipy.stats.shapiro(paq_relevancy_q_new))
+        print("Ground truth a relevancy: ", scipy.stats.shapiro(gt_relevancy_q_new))
+        print("Ours a relevancy: ",         scipy.stats.shapiro(ours_relevancy_a_new))
+        print("PAQ a relevancy: ",          scipy.stats.shapiro(paq_relevancy_a_new))
+        print("Ground truth a relevancy: ", scipy.stats.shapiro(gt_relevancy_a_new))
+        print("-----------")
+
+
     print("Readability")
     print("Ours vs PAQ",          scipy.stats.ttest_ind(ours_readability, paq_readability))
     print("Ground truth vs PAQ",  scipy.stats.ttest_ind(gt_readability,   paq_readability))
@@ -266,7 +295,7 @@ def stats_significance(labeller=None, skip_labellers=None):
     print("Ours vs Ours (new)", scipy.stats.ttest_ind(ours_readability, ours_readability_new))
     print("PAQ vs PAQ (new)",   scipy.stats.ttest_ind(paq_readability,  paq_readability_new))
     print("Ground truth vs ground truth (new)", scipy.stats.ttest_ind(gt_readability, gt_readability_new))
-    print("---")
+    print("-----------")
     print("Relevancy q")
     print("Ours vs PAQ",          scipy.stats.ttest_ind(ours_relevancy_q, paq_relevancy_q))
     print("Ground truth vs PAQ",  scipy.stats.ttest_ind(gt_relevancy_q,   paq_relevancy_q))
@@ -277,7 +306,7 @@ def stats_significance(labeller=None, skip_labellers=None):
     print("Ours vs Ours (new)", scipy.stats.ttest_ind(ours_relevancy_q, ours_relevancy_q_new))
     print("PAQ vs PAQ (new)",   scipy.stats.ttest_ind(paq_relevancy_q,  paq_relevancy_q_new))
     print("Ground truth vs ground truth (new)", scipy.stats.ttest_ind(gt_relevancy_q, gt_relevancy_q_new))
-    print("---")
+    print("-----------")
     print("Relevancy a")
     print("Ours vs PAQ",          scipy.stats.ttest_ind(ours_relevancy_a, paq_relevancy_a))
     print("Ground truth vs PAQ",  scipy.stats.ttest_ind(gt_relevancy_a,   paq_relevancy_a))
@@ -298,9 +327,17 @@ def parse_score(score):
     return score
 
 
-def annotator_agreement(labeller1=None, labeller2=None, label_source1='original', label_source2='original', system=None):
+class SameLabelError(ValueError):
+    pass
+
+
+class NoCommonLabelsError(ValueError):
+    pass
+
+
+def annotator_agreement(labeller1=None, labeller2=None, label_source1='original', label_source2='original', system=None, print_matrix=False):
     if labeller1 is not None and labeller1 == labeller2 and label_source1 == label_source2:
-        raise ValueError(f'Labellers must be different or with different sources, got {labeller1} and {labeller2}')
+        raise SameLabelError(f'Labellers must be different or with different sources, got {labeller1} and {labeller2}')
     if labeller1 is not None and labeller2 is None:
         print("Warning! labeller2 is None, assuming the same labeller with different source")
         labeller2 = labeller1
@@ -382,12 +419,15 @@ def annotator_agreement(labeller1=None, labeller2=None, label_source1='original'
     read_matrix = np.array(read_matrix).T
     q_matrix = np.array(q_matrix).T
     a_matrix = np.array(a_matrix).T
-    # print('Read matrix: ')
-    # print(read_matrix)
-    # print('Q matrix: ')
-    # print(q_matrix)
-    # print('A matrix: ')
-    # print(a_matrix)
+    if read_matrix.size == 0 or q_matrix.size == 0 or a_matrix.size == 0:
+        raise NoCommonLabelsError
+    if print_matrix:
+        print('Read matrix: ')
+        print(read_matrix)
+        print('Q matrix: ')
+        print(q_matrix)
+        print('A matrix: ')
+        print(a_matrix)
     
     # ordinal or interval or ratio would make the most sense
     level = 'ordinal'
@@ -406,10 +446,12 @@ def all_aggreements(args):
                 system=args.system,
                 label_source1=args.label_source1,
                 label_source2=args.label_source2,
+                print_matrix=args.print_matrix,
             )
+        except NoCommonLabelsError:
+            print("[WARNING] No common examples")
         except ValueError:
-            print("[WARNING] No common examples or labeller1 == labeller2")
-            pass
+            print("[WARNING] Agreement error, invalid values")
         return
     for labeller1 in range(0, 5):
         start = 0 if args.label_source1 != args.label_source2 else labeller1 + 1
@@ -424,9 +466,12 @@ def all_aggreements(args):
                     system=args.system,
                     label_source1=args.label_source1,
                     label_source2=args.label_source2,
+                    print_matrix=args.print_matrix,
                 )
+            except NoCommonLabelsError:
+                print("[WARNING] No common examples")
             except ValueError:
-                pass
+                print("[WARNING] Agreement error, invalid values")
 
 
 def main():
@@ -436,19 +481,19 @@ def main():
 
 
     subparsers.add_parser(
-        'write_files_for_labellers',
+        'write-files-for-labellers',
         help='Write xlsx files for each labeller in data folder: new_stories_{labeller_number}.xlsx',
     ).set_defaults(func=write_files_for_labellers)
 
 
     subparsers.add_parser(
-        'anonymize_labellers_files',
+        'anonymize-labellers-files',
         help='Rewrite xlsx files provided by each labeller in data folder as received_stories_{labeller_number}.xlsx to new_stories_{labeller_number}.xlsx in order to remove metadata',
     ).set_defaults(func=anonymize_files)
 
 
     subparsers.add_parser(
-        'merge_labellers_files',
+        'merge-labellers-files',
         help=(
                 'Place the new_stories_{labeller_number}.xlsx files in the data folder.'
                 ' This produces a new file called stories_relabelled.csv'
@@ -457,7 +502,7 @@ def main():
 
 
     subparsers.add_parser(
-        'combine_labelled_files',
+        'combine-labelled-files',
         help=(
                'Create the file stories_combined.csv containing the labels from the original experiment,'
                ' the labels from the reproduction study'
@@ -467,53 +512,54 @@ def main():
 
 
     divergent_examples_parser = subparsers.add_parser(
-        'extract_divergent_examples',
+        'extract-divergent-examples',
         help='Extract examples with absolute score differences equal or higher than a threshold'
     )
     divergent_examples_parser.add_argument(
         'threshold', type=int, choices=[2, 3, 4], help='threshold (absolute score difference)'
     )
     divergent_examples_parser.add_argument(
-        'op_type', default='eq', nargs='?', choices=['eq', 'geq'], help='comparison_type (default eq)'
+        'op-type', default='eq', nargs='?', choices=['eq', 'geq'], help='comparison_type (default eq)'
     )
     divergent_examples_parser.set_defaults(func=extract_divergent_examples)
 
 
     stories_stats_parser = subparsers.add_parser(
-        'stories_stats',
+        'stories-stats',
         help='Show mean and standard deviation for each system'
     )
     stories_stats_parser.add_argument('--system', choices=['Ours', 'PAQ', 'groundtruth'])
     stories_stats_parser.add_argument('--labeller', choices=[0, 1, 2, 3, 4], type=int, help='Filter results by one labeller')
     stories_stats_parser.add_argument(
-        '--skip_labellers', type=int, nargs='+', choices=[0, 1, 2, 3, 4], metavar='N',
+        '--skip-labellers', type=int, nargs='+', choices=[0, 1, 2, 3, 4], metavar='N',
         help='Skip results of one or more labellers (choose from 0, 1, 2, 3, 4)'
     )
     stories_stats_parser.set_defaults(func=stories_stats_wrapper)
 
 
     stats_significance_parser = subparsers.add_parser(
-        'stats_significance',
+        'stats-significance',
         help='Show stats significance results presented in the original paper, optionally filtering by labellers'
     )
     stats_significance_parser.add_argument('--labeller', choices=[0, 1, 2, 3, 4], type=int, help='Filter results by one labeller')
     stats_significance_parser.add_argument(
-        '--skip_labellers', type=int, nargs='+', choices=[0, 1, 2, 3, 4], metavar='N',
+        '--skip-labellers', type=int, nargs='+', choices=[0, 1, 2, 3, 4], metavar='N',
         help='Skip results of one or more labellers (choose from 0, 1, 2, 3, 4)'
     )
+    stats_significance_parser.add_argument('--normality-test', action='store_true', help='Show normality test results')
     stats_significance_parser.set_defaults(func=stats_significance_wrapper)
 
 
     annotator_agreement_parser = subparsers.add_parser(
-        'annotator_agreement',
+        'annotator-agreement',
         help='Compute the annotator agreement between all pairs of labellers'
     )
     annotator_agreement_parser.add_argument(
-        '--label_source1', default='original', choices=['original', 'new'],
+        '--label-source1', default='original', choices=['original', 'new'],
         help='What results to use for the first labeller (default original)'
     )
     annotator_agreement_parser.add_argument(
-        '--label_source2', default='original', choices=['original', 'new'],
+        '--label-source2', default='original', choices=['original', 'new'],
         help='What results to use for the second labeller (original)'
     )
     annotator_agreement_parser.add_argument(
@@ -525,6 +571,7 @@ def main():
         help='Second labeller for agreement (default is labeller1 if not set, changes label source to be different)'
     )
     annotator_agreement_parser.add_argument('--system', choices=['Ours', 'PAQ', 'groundtruth'])
+    annotator_agreement_parser.add_argument('--print-matrix', action='store_true', help='Print the agreement matrices (for debugging)')
     annotator_agreement_parser.set_defaults(func=all_aggreements)
     
 
