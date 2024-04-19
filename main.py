@@ -355,11 +355,14 @@ def annotator_agreement(labeller1=None, labeller2=None, label_source1='original'
     else:
         score_suffix2 = '_new'
 
+    # results_by_labeler = {}
+
     rows = []
     read_results = {}
     with open(os.path.join('data', f'stories_combined.csv'), newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
+
             if system is not None and system != row['source']:
                 continue
             if labeller1 is not None and int(row['labeller_id']) != labeller1:
@@ -373,6 +376,10 @@ def annotator_agreement(labeller1=None, labeller2=None, label_source1='original'
             q_score    = parse_score(q_score)
             a_score    = parse_score(a_score)
             
+            # if results_by_labeler.get(row['qa_id']) is None:
+            #     results_by_labeler[row['qa_id']] = {'0': np.nan, '1': np.nan, '2': np.nan, '3': np.nan, '4': np.nan} # { row['labeller_id']: read_score }
+            # results_by_labeler[row['qa_id']][row['labeller_id']] = read_score
+
             if labeller1 is not None or read_results.get(row['qa_id']) is None:
                 read_results[row['qa_id']] = {}
                 read_results[row['qa_id']]['labellers']   = [row['labeller_id']]
@@ -406,7 +413,12 @@ def annotator_agreement(labeller1=None, labeller2=None, label_source1='original'
                     read_results[row['qa_id']]['relevancy_q'].append(q_score)
                     read_results[row['qa_id']]['relevancy_a'].append(a_score)
 
-    # print(read_results)
+    # read_matrix_verbose = []
+    # for k in results_by_labeler:
+    #     read_matrix_verbose.append(list(results_by_labeler[k].values()))
+    # read_matrix_verbose = np.array(read_matrix_verbose).T
+    # print(read_matrix_verbose)
+    #return
     read_matrix = []
     q_matrix = []
     a_matrix = []
@@ -422,23 +434,37 @@ def annotator_agreement(labeller1=None, labeller2=None, label_source1='original'
     if read_matrix.size == 0 or q_matrix.size == 0 or a_matrix.size == 0:
         raise NoCommonLabelsError
     if print_matrix:
-        print('Read matrix: ')
+        print('Readability matrix: ')
         print(read_matrix)
-        print('Q matrix: ')
+        print('Question relevancy matrix: ')
         print(q_matrix)
-        print('A matrix: ')
+        print('Answer relevancy matrix: ')
         print(a_matrix)
     
     # ordinal or interval or ratio would make the most sense
     level = 'ordinal'
     domain = [1, 2, 3, 4, 5]
-    print("Readability:\t\t", krippendorff.alpha(read_matrix, level_of_measurement=level, value_domain=domain))
-    print("Question relevancy:\t", krippendorff.alpha(q_matrix, level_of_measurement=level, value_domain=domain))
-    print("Answer relevancy:\t", krippendorff.alpha(a_matrix, level_of_measurement=level, value_domain=domain))
+    read_alpha = krippendorff.alpha(read_matrix, level_of_measurement=level, value_domain=domain)
+    q_rel_alpha = krippendorff.alpha(q_matrix, level_of_measurement=level, value_domain=domain)
+    a_rel_alpha = krippendorff.alpha(a_matrix, level_of_measurement=level, value_domain=domain)
+    read_alpha  = fix_alpha_score(read_alpha)
+    q_rel_alpha = fix_alpha_score(q_rel_alpha)
+    a_rel_alpha = fix_alpha_score(a_rel_alpha)
+    print("Readability:\t\t", read_alpha)
+    print("Question relevancy:\t", q_rel_alpha)
+    print("Answer relevancy:\t", a_rel_alpha)
+    #print("Readability verbose:\t\t", krippendorff.alpha(read_matrix_verbose, level_of_measurement=level, value_domain=domain))
+    return read_alpha, q_rel_alpha, a_rel_alpha
+
+
+def fix_alpha_score(score):
+    if score == 0 or score == np.nan or math.isnan(score):
+        return 1
+    return score
 
 
 def all_aggreements(args):
-    if args.labeller1 is not None:
+    if args.labeller1 is not None or args.overall_agreement:
         try:
             annotator_agreement(
                 labeller1=args.labeller1,
@@ -453,6 +479,9 @@ def all_aggreements(args):
         except ValueError:
             print("[WARNING] Agreement error, invalid values")
         return
+    overall_agreement_read  = 0
+    overall_agreement_q_rel = 0
+    overall_agreement_a_rel = 0
     for labeller1 in range(0, 5):
         start = 0 if args.label_source1 != args.label_source2 else labeller1 + 1
         for labeller2 in range(start, 5):
@@ -460,7 +489,7 @@ def all_aggreements(args):
                 continue
             try:
                 print(f"{labeller1} <-> {labeller2}")
-                annotator_agreement(
+                read_alpha, q_rel_alpha, a_rel_alpha = annotator_agreement(
                     labeller1,
                     labeller2,
                     system=args.system,
@@ -468,10 +497,16 @@ def all_aggreements(args):
                     label_source2=args.label_source2,
                     print_matrix=args.print_matrix,
                 )
+                overall_agreement_read  += read_alpha
+                overall_agreement_q_rel += q_rel_alpha
+                overall_agreement_a_rel += a_rel_alpha
             except NoCommonLabelsError:
                 print("[WARNING] No common examples")
             except ValueError:
                 print("[WARNING] Agreement error, invalid values")
+    print(f"Overall agreement readability:\t\t{overall_agreement_read/5}")
+    print(f"Overall agreement question relevancy:\t{overall_agreement_q_rel/5}")
+    print(f"Overall agreement answer relevancy:\t{overall_agreement_a_rel/5}")
 
 
 def main():
@@ -572,6 +607,7 @@ def main():
     )
     annotator_agreement_parser.add_argument('--system', choices=['Ours', 'PAQ', 'groundtruth'])
     annotator_agreement_parser.add_argument('--print-matrix', action='store_true', help='Print the agreement matrices (for debugging)')
+    annotator_agreement_parser.add_argument('--overall-agreement', action='store_true', help='Compute the overall agreement directly (problematic option, see paper)')
     annotator_agreement_parser.set_defaults(func=all_aggreements)
     
 
@@ -587,40 +623,40 @@ if __name__ == "__main__":
 
 
 # 1)
-# python main.py write_files_for_labellers
+# python main.py write-files-for-labellers
 
 # 2)
 # # move/add newly labelled files to data/ directory
 
 # 3)
-# python main.py anonymize_labellers_files
+# python main.py anonymize-labellers-files
 
 # 4)
-# python main.py merge_labellers_files
-# python main.py combine_labelled_files
+# python main.py merge-labellers-files
+# python main.py combine-labelled-files
 
 # 5)
-# python main.py extract_divergent_examples 4
-# python main.py extract_divergent_examples 3
+# python main.py extract-divergent-examples 4
+# python main.py extract-divergent-examples 3
 
 # 6)
-# python main.py stories_stats --system Ours
-# python main.py stories_stats --system PAQ
-# python main.py stories_stats --system groundtruth
+# python main.py stories-stats --system Ours
+# python main.py stories-stats --system PAQ
+# python main.py stories-stats --system groundtruth
 
-# python main.py stories_stats --system Ours --skip_labellers 1
-# python main.py stories_stats --system PAQ --skip_labellers 1
-# python main.py stories_stats --system groundtruth --skip_labellers 1
+# python main.py stories-stats --system Ours --skip-labellers 1
+# python main.py stories-stats --system PAQ --skip-labellers 1
+# python main.py stories-stats --system groundtruth --skip-labellers 1
 
 # 7)
-# python main.py stats_significance
-# python main.py stats_significance --skip_labellers 1
+# python main.py stats-significance
+# python main.py stats-significance --skip-labellers 1
 
 # 8)
-# python main.py annotator_agreement
-# python main.py annotator_agreement --label_source1=new --label_source2=new
-# python main.py annotator_agreement --label_source1=new
-# python main.py annotator_agreement --system=Ours --label_source1=new --label_source2=new
-# python main.py annotator_agreement --labeller1=0 --labeller1=1
+# python main.py annotator-agreement
+# python main.py annotator-agreement --label-source1=new --label-source2=new
+# python main.py annotator-agreement --label-source1=new
+# python main.py annotator-agreement --system=Ours --label-source1=new --label-source2=new
+# python main.py annotator-agreement --labeller1=0 --labeller1=1
 
 
