@@ -45,18 +45,41 @@ from scipy.stats import spearmanr
 # w/ biased labeler
 readability_original = [4.71, 4.08, 4.95]
 readability_yours    = [4.52, 4.17, 4.71]
+# Ours         => 4.10468050521186
+# PAQ Baseline => 2.1752842715658565
+# Groundtruth  => 4.954063558431569
+
 relevancy_q_original = [4.39, 4.18, 4.92]
 relevancy_q_yours    = [3.83, 3.61, 4.71]
+# Ours         => 13.584500317159053
+# PAQ Baseline => 14.590321333673446
+# Groundtruth  => 4.348309680959793
+
 relevancy_a_original = [3.99, 3.90, 4.83]
 relevancy_a_yours    = [3.20, 3.20, 4.46]
+# Ours         => 21.909156606290367
+# PAQ Baseline => 19.659259261804127
+# Groundtruth  => 11.022169047716464
+
 
 # w/o biased labeler
 readability_original = [4.71, 4.08, 4.95]
 readability_yours    = [4.52, 4.13, 4.67]
+# Ours         => 4.10468050521186
+# PAQ Baseline => 1.2143791609431778
+# Groundtruth  => 5.8037730045243014
+
 relevancy_q_original = [4.39, 4.18, 4.92]
 relevancy_q_yours    = [3.92, 3.62, 4.77]
+# Ours         => 11.277797517043215
+# PAQ Baseline => 14.315973411159922
+# Groundtruth  => 3.086703687722461
+
 relevancy_a_original = [3.99, 3.90, 4.83]
 relevancy_a_yours    = [3.39, 3.42, 4.58]
+# Ours         => 16.211468148526055
+# PAQ Baseline => 13.07547922799151
+# Groundtruth  => 5.2975839061336485
 
 
 def print_stats(measurement_name, original, yours):
