@@ -1,6 +1,8 @@
-# ReproNLP-2024
+# ReproNLP 2024
 
-This repository provides all the necessary code and data for the reproduction of our experiments.
+This repository is associated with our paper _"Once Upon a Replication: It is Humans' Turn to Evaluate AI's Understanding of Children's Stories for QA Generation"_ for [ReproNLP 2024](https://repronlp.github.io/), part of [HumEval'24](https://humeval.github.io/) at [LREC-COLING 2024](https://lrec-coling-2024.org/).
+
+We provide all the necessary code and data for the reproduction of our experiments.
 
 There is only one script for code which contains a CLI interface.
 
@@ -72,3 +74,14 @@ python main.py annotator-agreement --label-source1 new
 python main.py annotator-agreement --system Ours --label-source1 new --label-source2 new
 python main.py annotator-agreement --labeller1 0 --labeller1 1
 ```
+
+## Acknowledgements
+
+We would like to thank our students for their efforts in annotating the stories. In alphabetical order:
+- [Mihai Răzvan Bilici](https://github.com/razvanbilici)
+- [Marius Cătălin Gheorghe](https://github.com/imcatag)
+- [Iulian Marin](https://github.com/Iulianm05)
+- [Iulian Gabriel Matache](https://github.com/magiuli)
+- [Matei Alexandru Podeanu](https://github.com/M-Podi)
+
+We would also like to thank our student [Ștefan Daniel Wagner](https://github.com/danielw98) for his help in validating the implementation and providing feedback regarding the statistical tests.
