@@ -1,6 +1,6 @@
 # ReproNLP 2024
 
-This repository is associated with our paper _"Once Upon a Replication: It is Humans' Turn to Evaluate AI's Understanding of Children's Stories for QA Generation"_ for [ReproNLP 2024](https://repronlp.github.io/), part of [HumEval'24](https://humeval.github.io/) at [LREC-COLING 2024](https://lrec-coling-2024.org/).
+This repository is associated with our [paper](https://aclanthology.org/2024.humeval-1.10) _"Once Upon a Replication: It is Humans' Turn to Evaluate AI's Understanding of Children's Stories for QA Generation"_ for [ReproNLP 2024](https://repronlp.github.io/), part of [HumEval'24](https://humeval.github.io/) at [LREC-COLING 2024](https://lrec-coling-2024.org/).
 
 We provide all the necessary code and data for the reproduction of our experiments.
 
@@ -85,3 +85,29 @@ We would like to thank our students for their efforts in annotating the stories.
 - [Matei Alexandru Podeanu](https://github.com/M-Podi)
 
 We would also like to thank our student [Ștefan Daniel Wagner](https://github.com/danielw98) for his help in validating the implementation and providing feedback regarding the statistical tests.
+
+## Citation
+
+If you found this work helpful, please cite our paper:
+```bib
+@inproceedings{florescu-etal-2024-upon,
+    title = "Once Upon a Replication: It is Humans{'} Turn to Evaluate {AI}{'}s Understanding of Children{'}s Stories for {QA} Generation",
+    author = "Florescu, Andra-Maria  and
+      Micluta-Campeanu, Marius  and
+      Dinu, Liviu P.",
+    editor = "Balloccu, Simone  and
+      Belz, Anya  and
+      Huidrom, Rudali  and
+      Reiter, Ehud  and
+      Sedoc, Joao  and
+      Thomson, Craig",
+    booktitle = "Proceedings of the Fourth Workshop on Human Evaluation of NLP Systems (HumEval) @ LREC-COLING 2024",
+    month = may,
+    year = "2024",
+    address = "Torino, Italia",
+    publisher = "ELRA and ICCL",
+    url = "https://aclanthology.org/2024.humeval-1.10",
+    pages = "106--113",
+}
+```
+
